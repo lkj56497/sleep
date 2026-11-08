@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>깊은밤</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="깊은밤">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0e1322">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@300;400;500;600&display=swap">
+<style>
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}
+/* 레이아웃: 휴대폰 한 화면 앱 — 위에 달, 가운데 재생 원, 아래 소리 섞기, 탭으로 수면 기록 전환 */
+:root{
+  --night:#0e1322; --night-2:#161c30; --line:#262e47;
+  --moon:#ecdcae; --moon-dim:#a99d7c; --mist:#9aa6c4; --text:#e4e7f1;
+  --good:#8fc9a8; --mid:#d9c27a; --bad:#d68f8f;
+  --display:"Gowun Batang",serif; --body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--night);color:var(--text);font-family:var(--body);font-size:15px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  background-image:radial-gradient(ellipse 120% 60% at 50% -10%,#1d2645 0%,transparent 60%)}
+.app{max-width:440px;margin:0 auto;padding-block:20px 40px;display:flex;flex-direction:column;gap:22px}
+header{display:flex;justify-content:space-between;align-items:baseline}
+h1{font-family:var(--display);font-weight:700;font-size:28px;margin:0;color:var(--moon);letter-spacing:.02em}
+.clock{font-variant-numeric:tabular-nums;color:var(--mist);font-size:14px}
+.tabs{display:grid;grid-template-columns:1fr 1fr;background:var(--night-2);border-radius:999px;padding:4px;border:1px solid var(--line)}
+.tabs button{all:unset;text-align:center;padding:9px 0;border-radius:999px;cursor:pointer;color:var(--mist);font-weight:500}
+.tabs button[aria-selected="true"]{background:var(--line);color:var(--moon)}
+.tabs button:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--moon);outline-offset:2px}
+section{display:flex;flex-direction:column;gap:20px}
+.label{font-size:12px;letter-spacing:.08em;color:var(--mist);margin:0 0 8px}
+
+/* 모드 */
+.modes{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.mode{all:unset;cursor:pointer;border:1px solid var(--line);border-radius:14px;padding:12px 10px;display:flex;flex-direction:column;gap:2px}
+.mode b{font-family:var(--display);font-size:17px;color:var(--text)}
+.mode span{font-size:12px;color:var(--mist);font-variant-numeric:tabular-nums}
+.mode[aria-pressed="true"]{border-color:var(--moon-dim);background:#1b2238}
+.mode[aria-pressed="true"] b{color:var(--moon)}
+
+/* 재생 원 */
+.stage{display:flex;flex-direction:column;align-items:center;gap:14px;padding:10px 0 4px}
+.orb{all:unset;cursor:pointer;width:200px;height:200px;max-width:100%;border-radius:50%;position:relative;display:grid;place-items:center}
+.orb::before{content:"";position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 38% 34%,#f6ebc8 0%,var(--moon) 30%,#9c8c62 100%);box-shadow:0 0 60px 6px rgba(236,220,174,.18)}
+.orb::after{content:"";position:absolute;inset:-14px;border-radius:50%;border:1px solid rgba(236,220,174,.25)}
+.orb.on::after{animation:breathe var(--breath,6s) ease-in-out infinite}
+.orb .ico{position:relative;color:#3a3220;font-size:15px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:4px}
+.orb svg{width:38px;height:38px;fill:#3a3220}
+@keyframes breathe{0%,100%{transform:scale(1);opacity:.35}50%{transform:scale(1.12);opacity:.8}}
+@media (prefers-reduced-motion:reduce){.orb.on::after{animation:none;opacity:.6}}
+.status{font-family:var(--display);font-size:18px;color:var(--moon);min-height:1.6em;text-align:center}
+.remain{font-variant-numeric:tabular-nums;color:var(--mist);font-size:14px;text-align:center}
+
+/* 타이머 */
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{all:unset;cursor:pointer;padding:7px 14px;border-radius:999px;border:1px solid var(--line);color:var(--mist);font-size:14px;font-variant-numeric:tabular-nums}
+.chip[aria-pressed="true"]{border-color:var(--moon-dim);color:var(--moon)}
+
+/* 소리 섞기 */
+.mixer{display:flex;flex-direction:column;gap:2px}
+.row{display:grid;grid-template-columns:86px 1fr 36px;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.row .nm{font-weight:500}
+.row .nm small{display:block;color:var(--mist);font-weight:400;font-size:12px}
+.row output{text-align:right;color:var(--mist);font-variant-numeric:tabular-nums;font-size:13px}
+input[type=range]{width:100%;accent-color:var(--moon);min-width:0}
+.note{font-size:13px;color:var(--mist);margin:0}
+
+/* 기록 */
+.cal-head{display:flex;justify-content:space-between;align-items:center}
+.cal-head h2{font-family:var(--display);font-size:20px;margin:0;color:var(--moon);font-weight:400}
+.nav{display:flex;gap:6px}
+.nav button{all:unset;cursor:pointer;width:34px;height:34px;display:grid;place-items:center;border-radius:50%;border:1px solid var(--line);color:var(--mist)}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}
+.grid .dow{font-size:12px;color:var(--mist);padding-bottom:4px}
+.day{aspect-ratio:1;max-width:100%;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:13px;font-variant-numeric:tabular-nums;color:var(--mist);gap:3px}
+.day.today{outline:1px solid var(--moon-dim)}
+.day.has{background:var(--night-2);color:var(--text)}
+.dot{width:7px;height:7px;border-radius:50%}
+.g{background:var(--good)}.m{background:var(--mid)}.b{background:var(--bad)}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--mist);flex-wrap:wrap}
+.legend span{display:flex;align-items:center;gap:6px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{border:1px solid var(--line);border-radius:14px;padding:12px}
+.stat b{display:block;font-family:var(--display);font-size:22px;color:var(--moon);font-variant-numeric:tabular-nums}
+.stat span{font-size:12px;color:var(--mist)}
+.list{display:flex;flex-direction:column}
+.item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);gap:10px}
+.item .when{font-variant-numeric:tabular-nums}
+.item .meta{font-size:13px;color:var(--mist)}
+.sample{font-size:12px;color:var(--moon-dim);border:1px dashed var(--line);border-radius:10px;padding:8px 12px;margin:0}
+
+/* 아침 평가 */
+.sheet{position:fixed;inset:auto 0 0 0;background:var(--night-2);border-top:1px solid var(--line);border-radius:22px 22px 0 0;
+  padding:22px max(16px,env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));z-index:20}
+.sheet .in{max-width:440px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.sheet h3{font-family:var(--display);margin:0;font-size:20px;color:var(--moon);font-weight:400}
+.rate{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.rate button{all:unset;cursor:pointer;text-align:center;padding:14px 0;border-radius:14px;border:1px solid var(--line)}
+.rate button:hover{border-color:var(--moon-dim)}
+.skip{all:unset;cursor:pointer;color:var(--mist);font-size:13px;text-align:center}
+</style>
+
+</head><body>
+<div class="app">
+  <header>
+    <h1>깊은밤</h1>
+    <div class="clock" id="clock"></div>
+  </header>
+
+  <div class="tabs" role="tablist">
+    <button id="t-sound" role="tab" aria-selected="true">잠들기</button>
+    <button id="t-log" role="tab" aria-selected="false">수면 기록</button>
+  </div>
+
+  <section id="p-sound">
+    <div>
+      <p class="label">뇌파 소리</p>
+      <div class="modes" id="modes">
+        <button class="mode" data-beat="2" data-breath="7" aria-pressed="true"><b>깊은 잠</b><span>델타파 2헤르츠</span></button>
+        <button class="mode" data-beat="5" data-breath="5.5" aria-pressed="false"><b>짧은 낮잠</b><span>세타파 5헤르츠</span></button>
+        <button class="mode" data-beat="9" data-breath="4.5" aria-pressed="false"><b>긴장 풀기</b><span>알파파 9헤르츠</span></button>
+      </div>
+    </div>
+
+    <div class="stage">
+      <button class="orb" id="orb" aria-label="재생">
+        <span class="ico" id="orbIco"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>시작</span>
+      </button>
+      <div class="status" id="status">누워서 눈을 감고 시작을 누르세요</div>
+      <div class="remain" id="remain"></div>
+    </div>
+
+    <div>
+      <p class="label">끄기 예약</p>
+      <div class="chips" id="timers">
+        <button class="chip" data-min="15" aria-pressed="false">15분</button>
+        <button class="chip" data-min="30" aria-pressed="false">30분</button>
+        <button class="chip" data-min="45" aria-pressed="true">45분</button>
+        <button class="chip" data-min="60" aria-pressed="false">1시간</button>
+        <button class="chip" data-min="90" aria-pressed="false">1시간 30분</button>
+        <button class="chip" data-min="0" aria-pressed="false">계속</button>
+      </div>
+    </div>
+
+    <div>
+      <p class="label">소리 섞기</p>
+      <div class="mixer">
+        <div class="row"><label class="nm" for="v-beat">뇌파<small>단일 맥놀이</small></label><input id="v-beat" type="range" min="0" max="100" value="45"><output for="v-beat">45</output></div>
+        <div class="row"><label class="nm" for="v-rain">빗소리<small>창밖 비</small></label><input id="v-rain" type="range" min="0" max="100" value="30"><output for="v-rain">30</output></div>
+        <div class="row"><label class="nm" for="v-wave">파도<small>먼 바다</small></label><input id="v-wave" type="range" min="0" max="100" value="0"><output for="v-wave">0</output></div>
+        <div class="row"><label class="nm" for="v-brown">갈색 소음<small>낮은 웅웅</small></label><input id="v-brown" type="range" min="0" max="100" value="0"><output for="v-brown">0</output></div>
+        <div class="row"><label class="nm" for="v-pink">분홍 소음<small>부드러운 쉬</small></label><input id="v-pink" type="range" min="0" max="100" value="0"><output for="v-pink">0</output></div>
+        <div class="row"><label class="nm" for="v-fan">선풍기<small>일정한 바람</small></label><input id="v-fan" type="range" min="0" max="100" value="0"><output for="v-fan">0</output></div>
+      </div>
+    </div>
+    <p class="note">뇌파 소리는 한 귀에 두 음을 섞어 만드는 단일 맥놀이라서 이어폰 없이 스피커로도 들립니다. 끄기 예약 시간이 되면 마지막 1분 동안 천천히 작아지며 꺼집니다.</p>
+  </section>
+
+  <section id="p-log" hidden>
+    <div class="cal-head">
+      <h2 id="calTitle"></h2>
+      <div class="nav"><button id="prev" aria-label="이전 달">‹</button><button id="next" aria-label="다음 달">›</button></div>
+    </div>
+    <div class="grid" id="grid"></div>
+    <div class="legend"><span><i class="dot g"></i>개운함</span><span><i class="dot m"></i>보통</span><span><i class="dot b"></i>피곤함</span></div>
+    <p class="sample" id="sampleNote" hidden>지금 보이는 기록은 예시입니다. 첫 수면을 마치면 내 기록으로 바뀝니다.</p>
+    <div class="stats">
+      <div class="stat"><b id="sCount">0</b><span>이번 달 사용</span></div>
+      <div class="stat"><b id="sAvg">0분</b><span>평균 재생</span></div>
+      <div class="stat"><b id="sGood">0%</b><span>개운한 아침</span></div>
+    </div>
+    <div>
+      <p class="label">최근 기록</p>
+      <div class="list" id="list"></div>
+    </div>
+  </section>
+</div>
+
+<div class="sheet" id="sheet" hidden>
+  <div class="in">
+    <h3>잘 주무셨나요?</h3>
+    <p class="note" id="sheetInfo"></p>
+    <div class="rate">
+      <button data-r="g">개운함</button><button data-r="m">보통</button><button data-r="b">피곤함</button>
+    </div>
+    <button class="skip" id="skip">나중에 적기</button>
+  </div>
+</div>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+
+/* 시계 */
+function tick(){const d=new Date();$("#clock").textContent=`${d.getHours()<12?"오전":"오후"} ${(d.getHours()%12)||12}:${String(d.getMinutes()).padStart(2,"0")}`}
+tick();setInterval(tick,10000);
+
+/* 탭 */
+function tab(which){const s=which==="sound";$("#t-sound").setAttribute("aria-selected",s);$("#t-log").setAttribute("aria-selected",!s);$("#p-sound").hidden=!s;$("#p-log").hidden=s;if(!s)renderCal()}
+$("#t-sound").onclick=()=>tab("sound");$("#t-log").onclick=()=>tab("log");
+
+/* 소리 엔진 */
+let ctx,master,nodes={},playing=false,beat=2,startAt=0,endAt=0,timerMin=45,loopId,wakeLock;
+function noiseBuf(type){
+  const len=ctx.sampleRate*4,b=ctx.createBuffer(1,len,ctx.sampleRate),d=b.getChannelData(0);
+  let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0,last=0;
+  for(let i=0;i<len;i++){const w=Math.random()*2-1;
+    if(type==="pink"){b0=.99886*b0+w*.0555179;b1=.99332*b1+w*.0750759;b2=.969*b2+w*.153852;b3=.8665*b3+w*.3104856;b4=.55*b4+w*.5329522;b5=-.7616*b5-w*.016898;d[i]=(b0+b1+b2+b3+b4+b5+b6+w*.5362)*.11;b6=w*.115926}
+    else if(type==="brown"){last=(last+.02*w)/1.02;d[i]=last*3.5}
+    else d[i]=w}
+  return b}
+function src(type){const s=ctx.createBufferSource();s.buffer=noiseBuf(type);s.loop=true;s.start();return s}
+function build(){
+  ctx=new (window.AudioContext||window.webkitAudioContext)();
+  master=ctx.createGain();master.gain.value=0;master.connect(ctx.destination);
+  const mk=()=>{const g=ctx.createGain();g.gain.value=0;g.connect(master);return g};
+  /* 단일 맥놀이: 같은 채널에 두 음을 더함 */
+  const bg=mk();const o1=ctx.createOscillator(),o2=ctx.createOscillator();o1.frequency.value=180;o2.frequency.value=180+beat;
+  const lp=ctx.createBiquadFilter();lp.type="lowpass";lp.frequency.value=600;o1.connect(lp);o2.connect(lp);lp.connect(bg);o1.start();o2.start();
+  nodes.beat={g:bg,o2,k:.35};
+  /* 빗소리 */
+  const rg=mk();const r=src("white"),rh=ctx.createBiquadFilter();rh.type="highpass";rh.frequency.value=900;const rl=ctx.createBiquadFilter();rl.type="lowpass";rl.frequency.value=7000;r.connect(rh);rh.connect(rl);rl.connect(rg);nodes.rain={g:rg,k:.5};
+  /* 파도: 갈색 소음에 느린 출렁임 */
+  const wg=mk();const w=src("brown"),wf=ctx.createBiquadFilter();wf.type="lowpass";wf.frequency.value=500;const swell=ctx.createGain();swell.gain.value=.55;
+  const lfo=ctx.createOscillator();lfo.frequency.value=.09;const ld=ctx.createGain();ld.gain.value=.45;lfo.connect(ld);ld.connect(swell.gain);lfo.start();
+  w.connect(wf);wf.connect(swell);swell.connect(wg);nodes.wave={g:wg,k:1};
+  const brg=mk();src("brown").connect(brg);nodes.brown={g:brg,k:.7};
+  const pg=mk();src("pink").connect(pg);nodes.pink={g:pg,k:.6};
+  const fg=mk();const f=src("pink"),ff=ctx.createBiquadFilter();ff.type="bandpass";ff.frequency.value=320;ff.Q.value=.6;f.connect(ff);ff.connect(fg);nodes.fan={g:fg,k:1.4};
+  applyVols(true);
+}
+function applyVols(now){if(!ctx)return;for(const k in nodes){const v=+$("#v-"+k).value/100;nodes[k].g.gain.setTargetAtTime(v*v*nodes[k].k,ctx.currentTime,now?.01:.2)}}
+$$(".row input").forEach(i=>{i.oninput=()=>{i.nextElementSibling.value=i.value;applyVols();store.set("vols",Object.fromEntries($$(".row input").map(x=>[x.id,x.value])))}});
+const sv=store.get("vols",null);if(sv)for(const id in sv){const el=document.getElementById(id);if(el){el.value=sv[id];el.nextElementSibling.value=sv[id]}}
+
+/* 모드 */
+$$(".mode").forEach(b=>b.onclick=()=>{$$(".mode").forEach(x=>x.setAttribute("aria-pressed",x===b));beat=+b.dataset.beat;
+  $("#orb").style.setProperty("--breath",b.dataset.breath+"s");
+  if(nodes.beat)nodes.beat.o2.frequency.setTargetAtTime(180+beat,ctx.currentTime,.5)});
+$("#orb").style.setProperty("--breath","7s");
+/* 타이머 */
+$$(".chip").forEach(b=>b.onclick=()=>{$$(".chip").forEach(x=>x.setAttribute("aria-pressed",x===b));timerMin=+b.dataset.min;
+  if(playing)endAt=timerMin?Date.now()+timerMin*60000:0;updRemain()});
+
+const PLAY='<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>시작',STOP='<svg viewBox="0 0 24 24"><path d="M7 6h4v12H7zM13 6h4v12h-4z"/></svg>멈춤';
+const lines=["숨을 천천히 내쉬어 보세요","어깨에 힘을 빼세요","소리에만 귀 기울이세요","생각은 흘려보내도 괜찮아요"];
+async function start(){
+  if(!ctx)build();await ctx.resume();
+  master.gain.cancelScheduledValues(ctx.currentTime);master.gain.setValueAtTime(master.gain.value,ctx.currentTime);master.gain.linearRampToValueAtTime(1,ctx.currentTime+4);
+  playing=true;startAt=Date.now();try{window.KipeunbamApp&&KipeunbamApp.playing(true)}catch(e){}endAt=timerMin?startAt+timerMin*60000:0;
+  $("#orb").classList.add("on");$("#orbIco").innerHTML=STOP;$("#orb").setAttribute("aria-label","멈춤");
+  try{wakeLock=await navigator.wakeLock?.request("screen")}catch(e){}
+  let n=0;$("#status").textContent=lines[0];
+  loopId=setInterval(()=>{updRemain();if(Date.now()%12000<1000)$("#status").textContent=lines[++n%lines.length];
+    if(endAt&&endAt-Date.now()<=60000&&!fading){fading=true;master.gain.setTargetAtTime(0,ctx.currentTime,15)}
+    if(endAt&&Date.now()>=endAt)stop(true)},1000);updRemain();
+}
+let fading=false;
+function stop(auto){
+  if(!playing)return;playing=false;try{window.KipeunbamApp&&KipeunbamApp.playing(false)}catch(e){}fading=false;clearInterval(loopId);
+  master.gain.cancelScheduledValues(ctx.currentTime);master.gain.setTargetAtTime(0,ctx.currentTime,auto?.1:.6);
+  setTimeout(()=>{if(!playing)ctx.suspend()},3000);
+  try{wakeLock?.release()}catch(e){}
+  $("#orb").classList.remove("on");$("#orbIco").innerHTML=PLAY;$("#orb").setAttribute("aria-label","재생");
+  $("#status").textContent=auto?"편안한 밤 되세요":"누워서 눈을 감고 시작을 누르세요";$("#remain").textContent="";
+  const mins=Math.round((Date.now()-startAt)/60000);
+  if(mins>=1){pending={t:startAt,min:mins,mode:$(".mode[aria-pressed=true] b").textContent};
+    $("#sheetInfo").textContent=`${fmtDate(new Date(startAt))} · ${pending.mode} · ${fmtMin(mins)} 재생`;$("#sheet").hidden=false}
+}
+$("#orb").onclick=()=>playing?stop(false):start();
+function updRemain(){if(!playing){$("#remain").textContent="";return}
+  if(!endAt){$("#remain").textContent=`${fmtMin(Math.floor((Date.now()-startAt)/60000))} 지남 · 직접 끌 때까지 재생`;return}
+  const s=Math.max(0,Math.round((endAt-Date.now())/1000));$("#remain").textContent=`${Math.floor(s/60)}분 ${String(s%60).padStart(2,"0")}초 뒤 꺼짐`}
+
+/* 기록 */
+let pending=null;
+function fmtMin(m){return m>=60?`${Math.floor(m/60)}시간${m%60?" "+m%60+"분":""}`:`${m}분`}
+function fmtDate(d){return `${d.getMonth()+1}월 ${d.getDate()}일`}
+function sample(){const t=new Date(),out=[],rs="ggmgbgmggmg";for(let i=1;i<=11;i++){const d=new Date(t.getFullYear(),t.getMonth(),t.getDate()-i*2+1,23,30);out.push({t:d.getTime(),min:[45,30,60,45,15,90,45,30,60,45,45][i-1],mode:i%4?"깊은 잠":"짧은 낮잠",r:rs[i-1]})}return out}
+function getLog(){const l=store.get("log",null);return l&&l.length?{l,ex:false}:{l:sample(),ex:true}}
+$$(".rate button").forEach(b=>b.onclick=()=>{save(b.dataset.r)});$("#skip").onclick=()=>save("");
+function save(r){if(pending){const l=store.get("log",[]);l.push({...pending,r});store.set("log",l);pending=null}$("#sheet").hidden=true;renderCal()}
+
+let view=new Date();view.setDate(1);
+$("#prev").onclick=()=>{view.setMonth(view.getMonth()-1);renderCal()};$("#next").onclick=()=>{view.setMonth(view.getMonth()+1);renderCal()};
+function renderCal(){
+  const {l,ex}=getLog();$("#sampleNote").hidden=!ex;
+  const y=view.getFullYear(),m=view.getMonth();$("#calTitle").textContent=`${y}년 ${m+1}월`;
+  const byDay={};l.forEach(e=>{const d=new Date(e.t);if(d.getFullYear()===y&&d.getMonth()===m)(byDay[d.getDate()]??=[]).push(e)});
+  const g=$("#grid");g.innerHTML="일월화수목금토".split("").map(c=>`<div class="dow">${c}</div>`).join("");
+  const first=new Date(y,m,1).getDay(),days=new Date(y,m+1,0).getDate(),now=new Date();
+  for(let i=0;i<first;i++)g.insertAdjacentHTML("beforeend","<div></div>");
+  for(let d=1;d<=days;d++){const e=byDay[d],last=e&&e[e.length-1];const today=y===now.getFullYear()&&m===now.getMonth()&&d===now.getDate();
+    g.insertAdjacentHTML("beforeend",`<div class="day${e?" has":""}${today?" today":""}">${d}${last&&last.r?`<i class="dot ${last.r}"></i>`:""}</div>`)}
+  const month=Object.values(byDay).flat();$("#sCount").textContent=month.length+"번";
+  $("#sAvg").textContent=month.length?fmtMin(Math.round(month.reduce((a,b)=>a+b.min,0)/month.length)):"0분";
+  const rated=month.filter(e=>e.r);$("#sGood").textContent=rated.length?Math.round(rated.filter(e=>e.r==="g").length/rated.length*100)+"%":"없음";
+  const name={g:"개운함",m:"보통",b:"피곤함"};
+  $("#list").innerHTML=[...l].sort((a,b)=>b.t-a.t).slice(0,6).map(e=>`<div class="item"><div><div class="when">${fmtDate(new Date(e.t))}</div><div class="meta">${e.mode} · ${fmtMin(e.min)}</div></div><div class="meta">${e.r?`<i class="dot ${e.r}" style="display:inline-block;margin-right:6px"></i>${name[e.r]}`:"평가 없음"}</div></div>`).join("");
+}
+renderCal();
+</script>
+
+<script>if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{})</script>
+</body></html>
