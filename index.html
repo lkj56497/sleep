@@ -13,6 +13,7 @@
 
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@300;400;500;600&display=swap">
 <style>
+[hidden]{display:none!important}
 :root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}
 /* 레이아웃: 휴대폰 한 화면 앱 — 위에 달, 가운데 재생 원, 아래 소리 섞기, 탭으로 수면 기록 전환 */
 :root{
@@ -73,6 +74,24 @@ section{display:flex;flex-direction:column;gap:20px}
 .row output{text-align:right;color:var(--mist);font-variant-numeric:tabular-nums;font-size:13px}
 input[type=range]{width:100%;accent-color:var(--moon);min-width:0}
 .note{font-size:13px;color:var(--mist);margin:0}
+
+/* 내 소리 */
+.save{display:grid;grid-template-columns:1fr auto;gap:8px;margin:0 0 10px}
+.save input{min-width:0;font:inherit;font-size:15px;background:var(--night-2);color:var(--text);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.save input::placeholder{color:var(--mist)}
+.save button{font:inherit;font-size:14px;font-weight:600;border:0;border-radius:12px;padding:0 14px;background:var(--moon);color:#2a2412;cursor:pointer;white-space:nowrap}
+.presets{display:flex;flex-direction:column}
+.preset{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.preset:last-child{border-bottom:0}
+.preset .use{all:unset;cursor:pointer;min-width:0;display:flex;flex-direction:column;gap:2px}
+.preset .use b{font-weight:500;overflow-wrap:anywhere}
+.preset .use span{font-size:12px;color:var(--mist);overflow-wrap:anywhere}
+.preset.on .use b{color:var(--moon)}
+.preset.on .use b::after{content:" · 적용 중";font-size:12px;color:var(--moon-dim);font-weight:400}
+.preset .acts{display:flex;gap:6px;align-items:center}
+.preset .acts button{all:unset;cursor:pointer;font-size:13px;color:var(--mist);border:1px solid var(--line);border-radius:999px;padding:5px 10px}
+.preset .acts .del-yes{color:var(--bad);border-color:var(--bad)}
+.empty{font-size:13px;color:var(--mist);margin:0;padding:6px 0}
 
 /* 기록 */
 .cal-head{display:flex;justify-content:space-between;align-items:center}
@@ -161,6 +180,14 @@ input[type=range]{width:100%;accent-color:var(--moon);min-width:0}
         <div class="row"><label class="nm" for="v-pink">분홍 소음<small>부드러운 쉬</small></label><input id="v-pink" type="range" min="0" max="100" value="0"><output for="v-pink">0</output></div>
         <div class="row"><label class="nm" for="v-fan">선풍기<small>일정한 바람</small></label><input id="v-fan" type="range" min="0" max="100" value="0"><output for="v-fan">0</output></div>
       </div>
+    </div>
+    <div>
+      <p class="label">내 소리</p>
+      <form class="save" id="saveForm">
+        <input id="presetName" type="text" maxlength="24" placeholder="이름 (예: 비 오는 밤)" autocomplete="off" aria-label="저장할 이름">
+        <button type="submit">지금 설정 저장</button>
+      </form>
+      <div class="presets" id="presets"></div>
     </div>
     <p class="note">뇌파 소리는 한 귀에 두 음을 섞어 만드는 단일 맥놀이라서 이어폰 없이 스피커로도 들립니다. 끄기 예약 시간이 되면 마지막 1분 동안 천천히 작아지며 꺼집니다.</p>
   </section>
@@ -308,6 +335,40 @@ function renderCal(){
   $("#list").innerHTML=[...l].sort((a,b)=>b.t-a.t).slice(0,6).map(e=>`<div class="item"><div><div class="when">${fmtDate(new Date(e.t))}</div><div class="meta">${e.mode} · ${fmtMin(e.min)}</div></div><div class="meta">${e.r?`<i class="dot ${e.r}" style="display:inline-block;margin-right:6px"></i>${name[e.r]}`:"평가 없음"}</div></div>`).join("");
 }
 renderCal();
+/* 내 소리: 개수 제한 없이 저장 */
+const VOLS=["beat","rain","wave","brown","pink","fan"],VN={beat:"뇌파",rain:"빗소리",wave:"파도",brown:"갈색 소음",pink:"분홍 소음",fan:"선풍기"};
+let presets=store.get("presets",[]),activeP=null,askDel=null,applying=false;
+function curSet(){return{mode:$$(".mode").findIndex(b=>b.getAttribute("aria-pressed")==="true"),timer:timerMin,vols:Object.fromEntries(VOLS.map(k=>[k,+$("#v-"+k).value]))}}
+function summary(p){const mb=$$(".mode")[p.mode],m=mb?mb.querySelector("b").textContent:"";
+  const v=VOLS.filter(k=>p.vols[k]>0).map(k=>VN[k]+" "+p.vols[k]).join(" · ");
+  return [m,v,p.timer?fmtMin(p.timer)+" 뒤 끄기":"계속 재생"].filter(Boolean).join(" · ")}
+function esc(s){return s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+function renderPresets(){
+  const box=$("#presets");
+  if(!presets.length){box.innerHTML='<p class="empty">아직 저장한 소리가 없어요. 위에서 소리를 맞춘 뒤 이름을 적고 저장하세요.</p>';return}
+  box.innerHTML=presets.map(p=>`<div class="preset${p.id===activeP?" on":""}"><button class="use" data-use="${p.id}"><b>${esc(p.name)}</b><span>${summary(p)}</span></button>
+    <div class="acts">${askDel===p.id?`<button class="del-yes" data-delyes="${p.id}">삭제</button><button data-delno="1">취소</button>`:`<button data-save="${p.id}">덮어쓰기</button><button data-del="${p.id}" aria-label="${esc(p.name)} 삭제">삭제</button>`}</div></div>`).join("")}
+function keep(){store.set("presets",presets)}
+$("#saveForm").addEventListener("submit",e=>{e.preventDefault();const inp=$("#presetName");
+  const name=inp.value.trim()||("내 소리 "+(presets.length+1));
+  const p=Object.assign({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),name},curSet());
+  presets.unshift(p);activeP=p.id;keep();inp.value="";inp.blur();renderPresets()});
+function applyPreset(p){if(!p)return;applying=true;
+  const mb=$$(".mode")[p.mode];if(mb)mb.click();
+  const tc=$$(".chip").find(c=>+c.dataset.min===p.timer);if(tc)tc.click();
+  VOLS.forEach(k=>{const i=$("#v-"+k);if(p.vols[k]!=null){i.value=p.vols[k];i.oninput()}});
+  applying=false;activeP=p.id;renderPresets()}
+$("#presets").addEventListener("click",e=>{const t=e.target.closest("button");if(!t)return;
+  const find=id=>presets.find(p=>p.id===id),d=t.dataset;
+  if(d.use){applyPreset(find(d.use));return}
+  if(d.save){const p=find(d.save);Object.assign(p,curSet());activeP=p.id;keep();renderPresets();return}
+  if(d.del){askDel=d.del;renderPresets();return}
+  if(d.delyes){presets=presets.filter(p=>p.id!==d.delyes);if(activeP===d.delyes)activeP=null;askDel=null;keep();renderPresets();return}
+  if(d.delno){askDel=null;renderPresets()}});
+function touched(){if(!applying&&activeP){activeP=null;renderPresets()}}
+$$(".row input").forEach(i=>i.addEventListener("input",touched));
+$$(".mode,.chip").forEach(b=>b.addEventListener("click",touched));
+renderPresets();
 </script>
 
 <script>if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{})</script>
