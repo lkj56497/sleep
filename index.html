@@ -93,6 +93,14 @@ input[type=range]{width:100%;accent-color:var(--moon);min-width:0}
 .preset .acts .del-yes{color:var(--bad);border-color:var(--bad)}
 .empty{font-size:13px;color:var(--mist);margin:0;padding:6px 0}
 
+/* 언어 */
+.hr{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.lang{display:flex;background:var(--night-2);border:1px solid var(--line);border-radius:999px;padding:2px}
+.lang button{all:unset;cursor:pointer;font-size:12px;padding:4px 10px;border-radius:999px;color:var(--mist)}
+.lang button[aria-pressed="true"]{background:var(--line);color:var(--moon)}
+html[lang="ja"] .preset.on .use b::after{content:" · 適用中"}
+html[lang="ja"] .row{grid-template-columns:112px 1fr 36px}
+
 /* 기록 */
 .cal-head{display:flex;justify-content:space-between;align-items:center}
 .cal-head h2{font-family:var(--display);font-size:20px;margin:0;color:var(--moon);font-weight:400}
@@ -132,7 +140,13 @@ input[type=range]{width:100%;accent-color:var(--moon);min-width:0}
 <div class="app">
   <header>
     <h1>깊은밤</h1>
-    <div class="clock" id="clock"></div>
+    <div class="hr">
+      <div class="lang" role="group" aria-label="언어" data-notr>
+        <button type="button" data-lang="ko" aria-pressed="true">한국어</button>
+        <button type="button" data-lang="ja" aria-pressed="false">日本語</button>
+      </div>
+      <div class="clock" id="clock"></div>
+    </div>
   </header>
 
   <div class="tabs" role="tablist">
@@ -346,7 +360,7 @@ function esc(s){return s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;
 function renderPresets(){
   const box=$("#presets");
   if(!presets.length){box.innerHTML='<p class="empty">아직 저장한 소리가 없어요. 위에서 소리를 맞춘 뒤 이름을 적고 저장하세요.</p>';return}
-  box.innerHTML=presets.map(p=>`<div class="preset${p.id===activeP?" on":""}"><button class="use" data-use="${p.id}"><b>${esc(p.name)}</b><span>${summary(p)}</span></button>
+  box.innerHTML=presets.map(p=>`<div class="preset${p.id===activeP?" on":""}"><button class="use" data-use="${p.id}"><b data-notr>${esc(p.name)}</b><span>${summary(p)}</span></button>
     <div class="acts">${askDel===p.id?`<button class="del-yes" data-delyes="${p.id}">삭제</button><button data-delno="1">취소</button>`:`<button data-save="${p.id}">덮어쓰기</button><button data-del="${p.id}" aria-label="${esc(p.name)} 삭제">삭제</button>`}</div></div>`).join("")}
 function keep(){store.set("presets",presets)}
 $("#saveForm").addEventListener("submit",e=>{e.preventDefault();const inp=$("#presetName");
@@ -369,6 +383,52 @@ function touched(){if(!applying&&activeP){activeP=null;renderPresets()}}
 $$(".row input").forEach(i=>i.addEventListener("input",touched));
 $$(".mode,.chip").forEach(b=>b.addEventListener("click",touched));
 renderPresets();
+/* 언어: 한국어 / 일본어 */
+const JA={"깊은밤":"深い夜","잠들기":"眠る","수면 기록":"睡眠記録","뇌파 소리":"脳波サウンド","깊은 잠":"深い眠り","짧은 낮잠":"短い昼寝","긴장 풀기":"リラックス",
+"델타파 2헤르츠":"デルタ波 2ヘルツ","세타파 5헤르츠":"シータ波 5ヘルツ","알파파 9헤르츠":"アルファ波 9ヘルツ","시작":"スタート","멈춤":"停止","재생":"再生",
+"누워서 눈을 감고 시작을 누르세요":"横になって目を閉じ、スタートを押してください","끄기 예약":"オフタイマー","계속":"ずっと","소리 섞기":"サウンドミックス",
+"뇌파":"脳波","단일 맥놀이":"モノラルビート","빗소리":"雨音","창밖 비":"窓の外の雨","파도":"波","먼 바다":"遠い海","갈색 소음":"ブラウンノイズ","낮은 웅웅":"低いうなり",
+"분홍 소음":"ピンクノイズ","부드러운 쉬":"やわらかなサー音","선풍기":"扇風機","일정한 바람":"一定の風","내 소리":"マイサウンド","이름 (예: 비 오는 밤)":"名前（例：雨の夜）",
+"저장할 이름":"保存する名前","지금 설정 저장":"今の設定を保存","아직 저장한 소리가 없어요. 위에서 소리를 맞춘 뒤 이름을 적고 저장하세요.":"保存したサウンドはまだありません。上でサウンドを調整してから、名前を入れて保存してください。",
+"덮어쓰기":"上書き","삭제":"削除","취소":"キャンセル","계속 재생":"連続再生","직접 끌 때까지 재생":"手動で止めるまで再生",
+"뇌파 소리는 한 귀에 두 음을 섞어 만드는 단일 맥놀이라서 이어폰 없이 스피커로도 들립니다. 끄기 예약 시간이 되면 마지막 1분 동안 천천히 작아지며 꺼집니다.":"脳波サウンドは片耳に2つの音を重ねて作るモノラルビートなので、イヤホンなしでスピーカーからも聞こえます。オフタイマーの時間になると、最後の1分間でゆっくり小さくなって止まります。",
+"숨을 천천히 내쉬어 보세요":"ゆっくり息を吐いてみましょう","어깨에 힘을 빼세요":"肩の力を抜いてください","소리에만 귀 기울이세요":"音だけに耳を傾けてください","생각은 흘려보내도 괜찮아요":"考えごとは流してしまって大丈夫",
+"편안한 밤 되세요":"おやすみなさい","이전 달":"前の月","다음 달":"次の月","일":"日","월":"月","화":"火","수":"水","목":"木","금":"金","토":"土",
+"개운함":"すっきり","보통":"ふつう","피곤함":"疲れた","지금 보이는 기록은 예시입니다. 첫 수면을 마치면 내 기록으로 바뀝니다.":"表示中の記録はサンプルです。最初の睡眠を終えると、あなたの記録に変わります。",
+"이번 달 사용":"今月の利用","평균 재생":"平均再生","개운한 아침":"すっきりした朝","최근 기록":"最近の記録","평가 없음":"評価なし","없음":"なし",
+"잘 주무셨나요?":"よく眠れましたか？","나중에 적기":"あとで記録する","언어":"言語"};
+function jaTime(s){return s.replace(/(\d+)시간/g,"$1時間").replace(/(\d+)분/g,"$1分").replace(/(\d+)초/g,"$1秒").replace(/時間 /g,"時間")}
+const RULES=[
+ [/^(\d+)년 (\d+)월$/,"$1年$2月"],[/^(\d+)월 (\d+)일$/,"$1月$2日"],[/^(\d+)번$/,"$1回"],
+ [/^(\d+)분 (\d+)초 뒤 꺼짐$/,"あと$1分$2秒で停止"],[/^(오전|오후) (.+)$/,(m,a,b)=>(a==="오전"?"午前 ":"午後 ")+b],
+ [/^(.+) 뒤 끄기$/,(m,a)=>jaTime(a)+"後に停止"],[/^(.+) 지남$/,(m,a)=>jaTime(a)+"経過"],[/^(.+) 재생$/,(m,a)=>jaTime(a)+"再生"],
+ [/^(\d+시간)?\s?(\d+분)?$/,m=>m.trim()?jaTime(m):m],[/^(.+) 삭제$/,"「$1」を削除"],
+ [/^(.+) (\d+)$/,(m,a,b)=>JA[a]?JA[a]+" "+b:m]];
+function trJa(s){const t=s.trim();if(!t||!/[가-힣]/.test(t))return s;
+  let out=JA[t];
+  if(out==null&&t.includes(" · "))out=t.split(" · ").map(trJa).join(" · ");
+  if(out==null)for(const [re,rep] of RULES){if(re.test(t)){out=t.replace(re,rep);break}}
+  return out==null?s:s.replace(t,out)}
+let LANG="ko";
+function skip(el){return !el||el.closest("[data-notr],script,style")}
+function trText(n){if(skip(n.parentElement))return;const cur=n.data;
+  if(n.__ja!=null&&n.__ja===cur){if(LANG==="ko"){n.__ja=null;n.data=n.__ko}return}
+  n.__ko=cur;n.__ja=null;if(LANG==="ja"){const t=trJa(cur);if(t!==cur){n.__ja=t;n.data=t}}}
+function trAttrs(el){if(skip(el))return;el.__a=el.__a||{};
+  for(const a of ["placeholder","aria-label"]){if(!el.hasAttribute(a))continue;const cur=el.getAttribute(a),m=el.__a[a];
+    if(m&&m.ja===cur){if(LANG==="ko"){m.ja=null;el.setAttribute(a,m.ko)}continue}
+    el.__a[a]={ko:cur,ja:null};if(LANG==="ja"){const t=trJa(cur);if(t!==cur){el.__a[a].ja=t;el.setAttribute(a,t)}}}}
+function trTree(root){if(root.nodeType===3){trText(root);return}if(root.nodeType!==1)return;trAttrs(root);
+  const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT|NodeFilter.SHOW_ELEMENT);let n;
+  while(n=w.nextNode()){n.nodeType===3?trText(n):trAttrs(n)}}
+new MutationObserver(ms=>{for(const m of ms){
+  if(m.type==="characterData")trText(m.target);
+  else if(m.type==="attributes")trAttrs(m.target);
+  else m.addedNodes.forEach(trTree)}}).observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:["placeholder","aria-label"]});
+function setLang(l){LANG=l;document.documentElement.lang=l;document.title=l==="ja"?"深い夜":"깊은밤";
+  $$("[data-lang]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.lang===l));store.set("lang",l);trTree(document.body)}
+$$("[data-lang]").forEach(b=>b.onclick=()=>setLang(b.dataset.lang));
+setLang(store.get("lang",null)||(/^ja/i.test(navigator.language||"")?"ja":"ko"));
 </script>
 
 <script>if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{})</script>

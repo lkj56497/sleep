@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>深い夜 インストール</title>
+<meta name="description" content="脳波サウンドと自然の音で眠りをサポートするアプリ「深い夜」をAndroidとiPhoneにインストールしましょう。">
+<meta property="og:title" content="深い夜 インストール">
+<meta property="og:description" content="脳波サウンドと自然の音で眠りをサポートする睡眠アプリ">
+<meta property="og:image" content="https://lkj56497.github.io/sleep/icon-512.png">
+<link rel="icon" href="https://lkj56497.github.io/sleep/icon-192.png">
+<link rel="apple-touch-icon" href="https://lkj56497.github.io/sleep/icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@700&family=Zen+Old+Mincho:wght@700&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: 한 장짜리 설치 안내. 위에 앱 소개, 기기 탭(안드로이드/아이폰), 탭마다 큰 버튼 + 번호 순서 */
+:root{
+  --bg:#EEF0F6; --surface:#FFFFFF; --fg:#151a2c; --muted:#5c6480; --line:#d8dce8;
+  --yolk:#d8c288; --yolk-ink:#231d0c; --pepper:#c0504a; --leaf:#3f7d64; --chip:#e2e5ef;
+  --display:"Zen Old Mincho","Gowun Batang",serif;
+  --body:"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo",system-ui,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#0e1322; --surface:#161c30; --fg:#e4e7f1; --muted:#9aa6c4; --line:#262e47;
+  --yolk:#ecdcae; --yolk-ink:#2a2412; --pepper:#e08a80; --leaf:#6fb894; --chip:#1d2440; color-scheme:dark}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:calc(20px + env(safe-area-inset-top,0px)) calc(48px + env(safe-area-inset-bottom,0px));-webkit-tap-highlight-color:transparent}
+.wrap{max-width:620px;margin:0 auto}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--yolk);outline-offset:2px}
+.hero{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center;padding-block:8px 20px}
+.hero img{width:76px;height:76px;border-radius:18px;box-shadow:0 4px 14px rgb(0 0 0/.12)}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(30px,8vw,40px);line-height:1.05;margin:0}
+.hero p{margin:6px 0 0;color:var(--muted);font-size:15px}
+.feats{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 22px;padding:0;list-style:none}
+.feats li{font-size:13px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px 11px}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:var(--chip);padding:4px;border-radius:14px;margin-bottom:14px}
+.tabs button{font:inherit;font-size:15px;border:0;background:transparent;color:var(--muted);border-radius:11px;padding:11px 8px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.tabs button[aria-selected="true"]{background:var(--surface);color:var(--fg);font-weight:700;box-shadow:0 1px 3px rgb(0 0 0/.1)}
+.tabs svg{width:18px;height:18px;flex:none}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:20px}
+.detected{display:inline-block;font-size:12px;font-weight:700;background:var(--leaf);color:#fff;border-radius:6px;padding:2px 8px;margin-bottom:10px}
+h2{font-family:var(--display);font-weight:700;font-size:24px;margin:0 0 4px}
+.lead{margin:0 0 16px;color:var(--muted);font-size:15px}
+.cta{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:56px;border:0;border-radius:14px;background:var(--fg);color:var(--bg);
+  font:inherit;font-size:17px;font-weight:700;text-decoration:none;cursor:pointer;padding:0 18px}
+.cta .sz{font-weight:500;opacity:.7;font-size:14px}
+.cta.alt{background:var(--yolk);color:var(--yolk-ink)}
+.warn{display:grid;grid-template-columns:auto 1fr;gap:10px;background:color-mix(in srgb,var(--pepper) 10%,var(--surface));border:1px solid color-mix(in srgb,var(--pepper) 40%,var(--line));
+  border-radius:12px;padding:12px 14px;margin:0 0 14px;font-size:14px}
+.warn b.ic{width:22px;height:22px;border-radius:50%;background:var(--pepper);color:#fff;display:grid;place-items:center;font-size:13px}
+.warn .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.small-btn{font:inherit;font-size:14px;font-weight:600;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:10px;padding:8px 12px;cursor:pointer;text-decoration:none}
+ol.steps{list-style:none;counter-reset:s;margin:20px 0 0;padding:0;display:grid;gap:14px}
+ol.steps>li{counter-increment:s;display:grid;grid-template-columns:32px 1fr;gap:12px;align-items:start}
+ol.steps>li::before{content:counter(s);width:32px;height:32px;border-radius:50%;background:var(--yolk);color:var(--yolk-ink);display:grid;place-items:center;font-weight:700;font-size:15px}
+.st>b{display:block;font-size:16px;line-height:1.4;margin-top:4px}
+.st p{margin:3px 0 0;color:var(--muted);font-size:14px}
+.key{display:inline-flex;align-items:center;gap:4px;background:var(--chip);border-radius:6px;padding:0 7px;font-size:13px;font-weight:600;color:var(--fg);white-space:nowrap;vertical-align:1px}
+.key svg{width:14px;height:14px}
+.qr{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center;margin-top:18px;padding-top:18px;border-top:1px solid var(--line)}
+.qr .box{width:128px;height:128px;background:#fff;border-radius:10px;padding:8px;display:grid;place-items:center}
+.qr .box img,.qr .box canvas{width:112px!important;height:112px!important}
+.qr p{margin:0;font-size:14px;color:var(--muted)}
+.qr code{display:block;margin-top:6px;font-size:13px;color:var(--fg);word-break:break-all}
+details.faq{margin-top:16px;background:var(--surface);border:1px solid var(--line);border-radius:14px}
+details.faq summary{cursor:pointer;padding:14px 16px;font-weight:600;list-style:none;display:flex;justify-content:space-between;gap:8px}
+details.faq summary::-webkit-details-marker{display:none}
+details.faq summary::after{content:"+";color:var(--muted);font-weight:400}
+details.faq[open] summary::after{content:"−"}
+details.faq div{padding:0 16px 14px;font-size:14px;color:var(--muted)}
+details.faq div p{margin:0 0 8px}
+footer{margin-top:22px;font-size:12px;color:var(--muted);text-align:center}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;font-weight:600}
+.langnav{display:flex;justify-content:flex-end;gap:4px;margin-bottom:6px}
+.langnav a{font-size:13px;text-decoration:none;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:4px 12px}
+.langnav a[aria-current="page"]{background:var(--surface);color:var(--fg);font-weight:700}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="langnav" aria-label="言語"><a href="install.html" data-setlang="ko">한국어</a><a href="install-ja.html" data-setlang="ja" aria-current="page">日本語</a></nav>
+  <header class="hero">
+    <img src="https://lkj56497.github.io/sleep/icon-192.png" alt="深い夜 アプリアイコン" width="76" height="76">
+    <div>
+      <h1>深い夜</h1>
+      <p>脳波サウンドに雨音や波の音を重ねて流し、決めた時間になると静かに止まります。</p>
+    </div>
+  </header>
+  <ul class="feats">
+    <li>脳波サウンド3種類</li><li>自然の音5種類をミックス</li><li>オフタイマー</li><li>マイサウンド保存</li><li>睡眠記録カレンダー</li><li>オフラインでも使える</li><li>韓国語・日本語</li>
+  </ul>
+
+  <div class="tabs" role="tablist" aria-label="端末を選択">
+    <button role="tab" id="tab-android" aria-controls="p-android" aria-selected="true" type="button">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 18c0 .55.45 1 1 1h1v3.5a1.5 1.5 0 0 0 3 0V19h2v3.5a1.5 1.5 0 0 0 3 0V19h1c.55 0 1-.45 1-1V8H6v10zM3.5 8A1.5 1.5 0 0 0 2 9.5v7a1.5 1.5 0 0 0 3 0v-7A1.5 1.5 0 0 0 3.5 8zm17 0a1.5 1.5 0 0 0-1.5 1.5v7a1.5 1.5 0 0 0 3 0v-7A1.5 1.5 0 0 0 20.5 8zm-4.97-5.84 1.3-1.3a.5.5 0 1 0-.71-.7l-1.48 1.48A5.86 5.86 0 0 0 12 1c-.96 0-1.86.23-2.66.63L7.85.15a.5.5 0 1 0-.71.71l1.31 1.31A5.98 5.98 0 0 0 6 7h12a5.98 5.98 0 0 0-2.47-4.84zM10 5H9V4h1v1zm5 0h-1V4h1v1z"/></svg>
+      Android</button>
+    <button role="tab" id="tab-ios" aria-controls="p-ios" aria-selected="false" type="button">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.37 12.62c-.02-2.3 1.88-3.4 1.96-3.46-1.07-1.56-2.73-1.78-3.32-1.8-1.41-.14-2.76.83-3.47.83-.72 0-1.82-.81-2.99-.79-1.54.02-2.96.9-3.75 2.27-1.6 2.78-.41 6.89 1.15 9.14.76 1.1 1.67 2.34 2.86 2.3 1.15-.05 1.58-.74 2.97-.74 1.38 0 1.78.74 2.99.72 1.24-.02 2.02-1.12 2.77-2.23.87-1.28 1.23-2.52 1.25-2.58-.03-.01-2.4-.92-2.42-3.66zM14.1 5.86c.63-.77 1.06-1.83.94-2.89-.91.04-2.01.61-2.67 1.37-.58.67-1.09 1.76-.96 2.79 1.02.08 2.06-.52 2.69-1.27z"/></svg>
+      iPhone</button>
+  </div>
+
+  <!-- ANDROID -->
+  <section class="panel" id="p-android" role="tabpanel" aria-labelledby="tab-android">
+    <span class="detected" id="det-android" hidden>お使いの端末です</span>
+    <h2>Androidにインストール</h2>
+    <p class="lead">インストールファイル（APK）をダウンロードして、そのままインストールします。1分で終わります。</p>
+    <div class="warn" id="inapp-android" hidden><b class="ic">!</b><div>LINE・Instagramなどのアプリ内で開いた画面ではダウンロードできないことがあります。右上の <b>⋮</b> メニューから <b>ブラウザで開く</b>（Chrome）を選んでください。</div></div>
+    <a class="cta" href="kipeunbam.apk" download="深い夜.apk" id="apkbtn">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 20h14"/></svg>
+      APKをダウンロード <span class="sz">約50KB</span></a>
+    <ol class="steps">
+      <li><div class="st"><b>上のボタンでダウンロード</b><p>「この種類のファイルはデバイスに悪影響を及ぼす可能性があります」という警告が出たら <span class="key">ダウンロード</span> を押してください。ストア以外から入手するファイルなので表示される案内です。</p></div></li>
+      <li><div class="st"><b>ダウンロードしたファイルを開く</b><p>画面下の完了通知の <span class="key">開く</span> を押してください。通知を見逃したら <span class="key">ファイル → ダウンロード</span> から <b>深い夜.apk</b> を押します。</p></div></li>
+      <li><div class="st"><b>「提供元不明のアプリ」を許可</b><p>最初の1回だけ表示されます。<span class="key">設定</span> を押して <span class="key">この提供元のアプリを許可</span> をオンにし、戻ってください。</p></div></li>
+      <li><div class="st"><b>インストールを押す</b><p>Playプロテクトが「確認されていないアプリ」と表示したら <span class="key">詳細</span> → <span class="key">インストールする</span> を押してください。個人が作ったアプリなので表示される案内です。</p></div></li>
+      <li><div class="st"><b>開く</b><p>インストールが終わると、アプリ一覧に月のアイコン <b>深い夜</b> が表示されます。</p></div></li>
+    </ol>
+  </section>
+
+  <!-- IOS -->
+  <section class="panel" id="p-ios" role="tabpanel" aria-labelledby="tab-ios" hidden>
+    <span class="detected" id="det-ios" hidden>お使いの端末です</span>
+    <h2>iPhoneにインストール</h2>
+    <p class="lead">Safariでアプリのページを開き、<b>ホーム画面に追加</b> するとアプリのように使えます。App Storeは必要ありません。</p>
+    <div class="warn" id="inapp-ios" hidden><b class="ic">!</b><div>
+      今はLINE・Instagramなどのアプリ内で開いているため、<b>ホーム画面に追加</b> ができません。<b>Safari</b> で開いてください。
+      <div class="row"><a class="small-btn" id="kakaoOpen" hidden>Safariで開く</a><button class="small-btn" type="button" data-copy>リンクをコピー</button></div>
+      <div style="margin-top:6px">コピーしたリンクをSafariのアドレスバーに貼り付けるか、画面下の <b>⋯</b>・<b>共有</b> メニューから <b>Safariで開く</b> を選んでください。</div>
+    </div></div>
+    <a class="cta alt" href="https://lkj56497.github.io/sleep/" id="iosbtn">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>
+      Safariでアプリのページを開く</a>
+    <ol class="steps">
+      <li><div class="st"><b>上のボタンでアプリのページを開く</b><p>必ず <b>Safari</b> で開いてください。深い夜の画面が出たら次へ進みます。</p></div></li>
+      <li><div class="st"><b>共有ボタンを押す</b><p>画面下（またはアドレスバーの横）の <span class="key"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M8 7l4-4 4 4M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg>共有</span> を押してください。共有ボタンが見えないときは、先に <span class="key">⋯</span> ボタンを押すと出てきます。</p></div></li>
+      <li><div class="st"><b>「ホーム画面に追加」を選ぶ</b><p>メニューを下にスクロールすると <span class="key">⊕ ホーム画面に追加</span> があります。見つからないときは <span class="key">さらに表示</span> を押して探してください。</p></div></li>
+      <li><div class="st"><b>「Webアプリとして開く」をオンにして追加</b><p>名前はそのままにして、<span class="key">Webアプリとして開く</span> のスイッチがあればオンのまま、右上の <span class="key">追加</span> を押してください。</p></div></li>
+      <li><div class="st"><b>ホーム画面から起動</b><p>月のアイコンが表示されます。押すとアドレスバーなしでアプリのように開き、一度開けばインターネットがなくても使えます。画面は自動で日本語になります。</p></div></li>
+    </ol>
+  </section>
+
+  <div class="panel qr" id="qr" hidden>
+    <div class="box" id="qrbox" aria-label="このインストールページのQRコード"></div>
+    <p><b style="color:var(--fg)">スマホでこのページを開く</b><br>カメラでQRコードを読み取ると、スマホからすぐインストールできます。<code id="pageurl"></code></p>
+  </div>
+
+  <details class="faq">
+    <summary>寝るときに画面を消してもいいですか？</summary>
+    <div><p><b>Android</b>：画面を消しても音は流れ続けます。再生中は通知欄に再生中と表示されます。</p>
+    <p><b>iPhone</b>：画面を消すと音が止まることがあります。明るさを下げて、画面をつけたまま伏せて置いてください。</p></div>
+  </details>
+  <details class="faq">
+    <summary>アップデートはどうすればいいですか？</summary>
+    <div><p><b>Android</b>：このページからAPKをもう一度ダウンロードしてインストールすると、上書きされます。睡眠記録はそのまま残ります。</p>
+    <p><b>iPhone</b>：特に何もしなくて大丈夫です。アプリを開くと新しいバージョンを受け取り、完全に閉じて開き直すと切り替わります。</p></div>
+  </details>
+  <details class="faq">
+    <summary>言語を切り替えるには？</summary>
+    <div><p>アプリ右上の <b>한국어 / 日本語</b> ボタンを押すとすぐ切り替わります。最初はスマホの言語設定に合わせて開きます。</p></div>
+  </details>
+  <details class="faq">
+    <summary>アプリを削除するには？</summary>
+    <div><p>ほかのアプリと同じです。ホーム画面でアイコンを長押しして <b>削除</b>（iPhone）または <b>アンインストール</b>（Android）を押してください。</p></div>
+  </details>
+
+</div>
+<div class="toast" id="toast" hidden role="status"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+(function(){
+
+  document.querySelectorAll("[data-setlang]").forEach(a=>a.addEventListener("click",()=>{try{localStorage.setItem("installLang",a.dataset.setlang)}catch(e){}}));
+  const APP="https://lkj56497.github.io/sleep/";
+  const ua=navigator.userAgent||"";
+  const isIOS=/iPhone|iPad|iPod/i.test(ua)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+  const isAndroid=/Android/i.test(ua);
+  const inApp=/KAKAOTALK|Instagram|FBAN|FBAV|NAVER\(|Line\/|DaumApps|everytimeApp|BAND\//i.test(ua);
+  const $=id=>document.getElementById(id);
+  const tabs={android:$("tab-android"),ios:$("tab-ios")}, panels={android:$("p-android"),ios:$("p-ios")};
+  function show(k){for(const x in tabs){const on=x===k;tabs[x].setAttribute("aria-selected",on);panels[x].hidden=!on}}
+  tabs.android.onclick=()=>show("android"); tabs.ios.onclick=()=>show("ios");
+  if(isIOS){show("ios");$("det-ios").hidden=false;if(inApp)$("inapp-ios").hidden=false}
+  else if(isAndroid){show("android");$("det-android").hidden=false;if(inApp)$("inapp-android").hidden=false}
+  else{
+    $("qr").hidden=false;
+    const url=location.href.split("#")[0];
+    $("pageurl").textContent=url;
+    try{new QRCode($("qrbox"),{text:url,width:224,height:224,colorDark:"#0e1322",colorLight:"#ffffff"})}catch(e){$("qr").hidden=true}
+  }
+  if(isIOS&&/KAKAOTALK/i.test(ua)){const a=$("kakaoOpen");a.href="kakaotalk://web/openExternal?url="+encodeURIComponent(APP);a.hidden=false}
+  function toast(m){const t=$("toast");t.textContent=m;t.hidden=false;clearTimeout(toast.h);toast.h=setTimeout(()=>t.hidden=true,2200)}
+  document.querySelectorAll("[data-copy]").forEach(b=>b.onclick=()=>{
+    const done=()=>toast("リンクをコピーしました。Safariのアドレスバーに貼り付けてください");
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(APP).then(done,()=>fallback())}else fallback();
+    function fallback(){const ta=document.createElement("textarea");ta.value=APP;ta.setAttribute("readonly","");ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();
+      try{document.execCommand("copy");done()}catch(e){toast(APP)}ta.remove()}
+  });
+})();
+</script>
+</body>
+</html>

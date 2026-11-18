@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>깊은밤 설치하기</title>
+<script>try{if(!localStorage.getItem("installLang")&&/^ja/i.test(navigator.language||""))location.replace("install-ja.html")}catch(e){}</script>
+
 <meta name="description" content="뇌파 소리와 자연 소리로 잠드는 걸 돕는 앱, 깊은밤을 안드로이드와 아이폰에 설치하세요.">
 <meta property="og:title" content="깊은밤 설치하기">
 <meta property="og:description" content="뇌파 소리와 자연 소리로 잠드는 걸 돕는 수면 앱">
@@ -77,10 +79,14 @@ details.faq div{padding:0 16px 14px;font-size:14px;color:var(--muted)}
 details.faq div p{margin:0 0 8px}
 footer{margin-top:22px;font-size:12px;color:var(--muted);text-align:center}
 .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;font-weight:600}
+.langnav{display:flex;justify-content:flex-end;gap:4px;margin-bottom:6px}
+.langnav a{font-size:13px;text-decoration:none;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:4px 12px}
+.langnav a[aria-current="page"]{background:var(--surface);color:var(--fg);font-weight:700}
 </style>
 </head>
 <body>
 <div class="wrap">
+  <nav class="langnav" aria-label="언어"><a href="install.html" data-setlang="ko" aria-current="page">한국어</a><a href="install-ja.html" data-setlang="ja">日本語</a></nav>
   <header class="hero">
     <img src="https://lkj56497.github.io/sleep/icon-192.png" alt="깊은밤 앱 아이콘" width="76" height="76">
     <div>
@@ -157,6 +163,10 @@ footer{margin-top:22px;font-size:12px;color:var(--muted);text-align:center}
     <p><b>아이폰</b>: 따로 할 건 없어요. 앱을 열면 새 버전을 받아두고, 완전히 닫았다 다시 열면 바뀌어요.</p></div>
   </details>
   <details class="faq">
+    <summary>언어를 바꾸려면요?</summary>
+    <div><p>앱 오른쪽 위의 <b>한국어 / 日本語</b> 버튼을 누르면 바로 바뀌어요. 처음에는 휴대폰 언어에 맞춰 열려요.</p></div>
+  </details>
+  <details class="faq">
     <summary>앱을 지우려면요?</summary>
     <div><p>다른 앱과 똑같아요. 홈 화면에서 아이콘을 길게 눌러 <b>삭제</b>(아이폰) 또는 <b>제거</b>(안드로이드)를 누르세요.</p></div>
   </details>
@@ -167,6 +177,8 @@ footer{margin-top:22px;font-size:12px;color:var(--muted);text-align:center}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 (function(){
+
+  document.querySelectorAll("[data-setlang]").forEach(a=>a.addEventListener("click",()=>{try{localStorage.setItem("installLang",a.dataset.setlang)}catch(e){}}));
   const APP="https://lkj56497.github.io/sleep/";
   const ua=navigator.userAgent||"";
   const isIOS=/iPhone|iPad|iPod/i.test(ua)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
